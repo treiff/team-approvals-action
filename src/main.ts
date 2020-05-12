@@ -1,23 +1,44 @@
-import * as core from '@actions/core'
-import * as github from '@actions/github'
+import * as core from '@actions/core';
+import * as github from '@actions/github';
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    const nameToGreet: string = core.getInput('who-to-greet');
-    console.log(`Hello ${nameToGreet}!`);
+    const token = core.getInput('repo-token', { required: true });
 
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    const prNumber = getPrNumber();
+    if (!prNumber) {
+      console.log('Could not get pull request number from context, exiting');
+      return;
+    }
 
-    core.debug(new Date().toTimeString())
+    const client = new github.GitHub(token);
 
-    const payload = JSON.stringify(github.context.payload, undefined, 2)
-    console.log(`The event payload: ${payload}`);
-
-    core.setOutput('time', new Date().toTimeString())
+    core.debug(`fetching info for pr #${prNumber}`);
+    const prInfo = await getPrInfo(client, prNumber);
+    console.log(prInfo);
   } catch (error) {
-    core.setFailed(error.message)
+    core.error(error);
+    core.setFailed(error.message);
   }
 }
 
-run()
+function getPrNumber(): number | undefined {
+  const pullRequest = github.context.payload.pull_request;
+  if (!pullRequest) {
+    return undefined;
+  }
+
+  return pullRequest.number;
+}
+
+async function getPrInfo(client: github.GitHub, prNumber: number): Promise<any> {
+  const prResponse = await client.pulls.get({
+    owner: github.context.repo.owner,
+    repo: github.context.repo.repo,
+    pull_number: prNumber,
+  });
+
+  return prResponse.data;
+}
+
+run();

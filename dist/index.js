@@ -3417,18 +3417,38 @@ const github = __importStar(__webpack_require__(469));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const ms = core.getInput('milliseconds');
-            const nameToGreet = core.getInput('who-to-greet');
-            console.log(`Hello ${nameToGreet}!`);
-            core.debug(`Waiting ${ms} milliseconds ...`);
-            core.debug(new Date().toTimeString());
-            const payload = JSON.stringify(github.context.payload, undefined, 2);
-            console.log(`The event payload: ${payload}`);
-            core.setOutput('time', new Date().toTimeString());
+            const token = core.getInput('repo-token', { required: true });
+            const prNumber = getPrNumber();
+            if (!prNumber) {
+                console.log('Could not get pull request number from context, exiting');
+                return;
+            }
+            const client = new github.GitHub(token);
+            core.debug(`fetching info for pr #${prNumber}`);
+            const prInfo = yield getPrInfo(client, prNumber);
+            console.log(prInfo);
         }
         catch (error) {
+            core.error(error);
             core.setFailed(error.message);
         }
+    });
+}
+function getPrNumber() {
+    const pullRequest = github.context.payload.pull_request;
+    if (!pullRequest) {
+        return undefined;
+    }
+    return pullRequest.number;
+}
+function getPrInfo(client, prNumber) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const prResponse = yield client.pulls.get({
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+            pull_number: prNumber
+        });
+        return prResponse.data;
     });
 }
 run();
