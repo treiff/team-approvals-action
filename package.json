@@ -1,0 +1,28 @@
+{
+  "name": "team-approvals-action",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "git@github.com:treiff/team-approvals-action.git",
+  "author": "Trevor Reiff <trevorreiff@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@zeit/ncc": "^0.22.1",
+    "jest": "^26.0.1",
+    "jest-circus": "^26.0.1",
+    "prettier": "^2.0.5",
+    "ts-jest": "^25.5.1",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.3.0",
+    "typescript": "^3.8.3"
+  },
+  "scripts": {
+    "build": "tsc",
+    "format": "prettier --write **/*.ts",
+    "format-check": "prettier --check **/*.ts",
+    "pack": "ncc build",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@actions/core": "^1.2.4"
+  }
+}
