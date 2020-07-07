@@ -25,6 +25,6 @@
   "dependencies": {
     "@actions/core": "^1.2.4",
     "@actions/github": "^2.2.0",
-    "npm": "^6.14.5"
+    "npm": "^6.14.6"
   }
 }
